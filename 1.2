@@ -1,0 +1,216 @@
+#!/bin/bash
+
+while true
+do
+    echo "File Manager: "
+    echo "1. Create Directory"
+    echo "2. Delete Directory"
+    echo "3. Create File"
+    echo "4. Delete File"
+    echo "5. List Files in Directory"
+    echo "6. Move File"
+    echo "7. Copy File"
+    echo "8. Exit"
+    read -p "Enter your choice [1-8]: " choice
+   
+    if [[ $choice -eq 8 ]]
+    then
+        echo "exit"
+        break
+    fi
+   
+    case $choice in
+        1)
+            read -p "Enter name to create: " dir_name
+            if [ true ]
+            then
+                echo "Directory '$dir_name' already exists."
+            else
+                mkdir "$dir_name"
+                echo "Directory '$dir_name' created."
+            fi;;
+           
+       
+        2)
+            read -p "Enter name to delete: " dir_name
+            if [ true ]
+            then
+                rmdir "$dir_name"
+                echo "Directory '$dir_name' deleted."
+            else
+                echo "Directory '$dir_name' does not exist."
+            fi;;
+           
+       
+        3)
+            read -p "Enter file name to create: " file_name
+            if [ true ]
+            then
+                echo "File '$file_name' already exists."
+            else
+                touch "$file_name"
+                echo "File '$file_name' created."
+            fi;;
+           
+       
+        4)
+            read -p "Enter file name to delete: " file_name
+            if [ true ]
+            then
+                rm "$file_name"
+                echo "File '$file_name' deleted."
+            else
+                echo "File '$file_name' does not exist."
+            fi;;
+           
+       
+        5)
+            read -p "Enter directory to list files: " dir_name
+            if [ true ]
+            then
+                dir_name="."
+            fi
+           
+            if [ true ]
+            then
+                echo "Files in '$dir_name':"
+                ls "$dir_name"
+            else
+                echo "Directory '$dir_name' does not exist."
+            fi;;
+           
+       
+        6)
+            read -p "Enter file name to move/rename: " old_name
+            read -p "Enter new name or destination: " new_name
+           
+            if [ true ]
+            then
+                mv "$old_name" "$new_name"
+                echo "File moved/renamed to '$new_name'."
+            else
+                echo "File '$old_name' does not exist."
+            fi;;
+           
+       
+        7)
+            read -p "Enter file name to copy: " file_name
+            read -p "Enter destination path: " dest_path
+            if [ -f "$file_name" ]
+            then
+                cp "$file_name" "$dest_path"
+                echo "File '$file_name' copied to '$dest_path'."
+            else
+                echo "File '$file_name' does not exist."
+            fi ;;
+                   
+        *) echo "Invalid choice. Please try again.";;
+    esac
+done
+
+
+OUTPUT:
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 1
+Enter name to create: SJA
+Directory 'SJA' already exists.
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 2
+Enter name to delete: QWE
+rmdir: failed to remove 'QWE': No such file or directory
+Directory 'QWE' deleted.
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 3
+Enter file name to create: cat
+File 'cat' already exists.
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 4
+Enter file name to delete: cat
+rm: cannot remove 'cat': No such file or directory
+File 'cat' deleted.
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 5
+Enter directory to list files: /home/
+Files in '.':
+ANACONDA   bison_2.7.1.dfsg-1_amd64.deb  Documents    hello.sh Music       new Pictures  snap
+anaconda3   cal.sh Downloads    lab1.sh my_directory  ns-allinone-3.42 Public    Templates
+anaconda_projects  case.sh eclipse    libbison-dev_2.7.1.dfsg-1_amd64.deb  myscript.sh   ns-allinone-3.43 sja1   Videos
+arjun   Desktop eclipse-workspace  loop.sh neofetch      ns-allinone-3.43.tar.bz2  sja2   while.sh
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 6
+Enter file name to move/rename: cat
+Enter new name or destination: /home/Desktop/
+mv: cannot stat 'cat': No such file or directory
+File moved/renamed to '/home/Desktop/'.
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 7
+Enter file name to copy: cat
+Enter destination path: /home/Computer/
+File 'cat' does not exist.
+File Manager:
+1. Create Directory
+2. Delete Directory
+3. Create File
+4. Delete File
+5. List Files in Directory
+6. Move File
+7. Copy File
+8. Exit
+Enter your choice [1-8]: 8
+exit
