@@ -1,0 +1,95 @@
+#!/bin/bash
+
+while true
+do
+echo "Calc: "
+echo "1. Addition"
+echo "2. Subtraction"
+echo "3. Product"
+echo "4. Division"
+echo "5. Exit"
+read -p "Enter your choice [1-5]: " choice
+
+if [[ $choice -eq 5 ]]
+then
+       echo "exit"
+       break
+fi
+
+read -p "Enter first number: " a
+read -p "Enter second number: " b
+
+
+case $choice in
+1)
+add=$`expr $a + $b`
+echo "Result: $a + $b = $add";;
+
+2)
+sub=$`expr $a - $b`
+echo "Result: $a - $b = $sub";;
+
+3)
+prod=$`expr $a \* $b`
+echo "Result: $a * $b = $prod";;
+
+4)
+div=$`expr $a / $b`
+echo "Result: $a / $b= $div";;
+
+5)
+echo "Exit";;
+
+*) echo "Wrong choice";;
+esac
+done
+
+OUTPUT: 
+Calc:
+1. Addition
+2. Subtraction
+3. Product
+4. Division
+5. Exit
+Enter your choice [1-5]: 1
+Enter first number: 2
+Enter second number: 3
+Result: 2 + 3 = $5
+Calc:
+1. Addition
+2. Subtraction
+3. Product
+4. Division
+5. Exit
+Enter your choice [1-5]: 2
+Enter first number: 3
+Enter second number: 1
+Result: 3 - 1 = $2
+Calc:
+1. Addition
+2. Subtraction
+3. Product
+4. Division
+5. Exit
+Enter your choice [1-5]: 3
+Enter first number: 4
+Enter second number: 3
+Result: 4 * 3 = $12
+Calc:
+1. Addition
+2. Subtraction
+3. Product
+4. Division
+5. Exit
+Enter your choice [1-5]: 4
+Enter first number: 5
+Enter second number: 1
+Result: 5 / 1= $5
+Calc:
+1. Addition
+2. Subtraction
+3. Product
+4. Division
+5. Exit
+Enter your choice [1-5]: 5
+exit
