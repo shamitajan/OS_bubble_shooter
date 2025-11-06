@@ -1,0 +1,196 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void fifo() {
+    int frame_size, num_pages, i, j, k;
+    int page_faults = 0;
+    int hits = 0;
+
+    printf("\n--- FIFO Page Replacement ---\n");
+    printf("Enter the number of frames: ");
+    scanf("%d", &frame_size);
+
+    printf("Enter the number of pages: ");
+    scanf("%d", &num_pages);
+
+    int page_sequence[num_pages];
+    printf("Enter the pages ypu want to search: ");
+    for (i = 0; i < num_pages; i++) {
+        scanf("%d", &page_sequence[i]);
+    }
+
+    int frames[frame_size];
+    for (i = 0; i < frame_size; i++) {
+        frames[i] = -1;
+    }
+
+    int next_victim_index = 0;
+    printf("\nPage\tFrames\t\tStatus\n");
+
+    for (i = 0; i < num_pages; i++) {
+        printf("%d\t", page_sequence[i]);
+
+        int page_found = 0;
+        // Check if the page is already in a frame (a hit)
+        for (j = 0; j < frame_size; j++) {
+            if (frames[j] == page_sequence[i]) {
+                page_found = 1;
+                hits++;
+                break;
+            }
+        }
+
+        // If page is not found (a miss/page fault)
+        if (page_found == 0) {
+            page_faults++;
+            // Replace the page at the victim index
+            frames[next_victim_index] = page_sequence[i];
+            // Move the victim index to the next frame in a circular manner
+            next_victim_index = (next_victim_index + 1) % frame_size;
+        }
+
+        // Print the current state of frames
+        for (k = 0; k < frame_size; k++) {
+            if (frames[k] == -1) {
+                printf(" - ");
+            } else {
+                printf(" %d ", frames[k]);
+            }
+        }
+
+        // Print hit or miss status
+        if (page_found == 1) {
+            printf("\tHit\n");
+        } else {
+            printf("\tMiss (Fault)\n");
+        }
+    }
+
+    printf("Total Page Faults: %d\n", page_faults);
+    printf("Total Hits: %d\n", hits);
+}
+
+//LRU page replacement algorithm
+void lru() {
+    int frame_size, num_pages, i, j, k;
+    int page_faults = 0;
+    int hits = 0;
+
+    printf("\n--- LRU Page Replacement ---\n");
+    printf("Enter the number of frames: ");
+    scanf("%d", &frame_size);
+
+    printf("Enter the number of pages: ");
+    scanf("%d", &num_pages);
+
+    int page_sequence[num_pages];
+    printf("Enter the pages ypu want to search: ");
+    for (i = 0; i < num_pages; i++) {
+        scanf("%d", &page_sequence[i]);
+    }
+
+    int frames[frame_size];
+    int recency[frame_size];
+    int time_counter = 0;
+
+    // Initializing frames
+    for (i = 0; i < frame_size; i++) {
+        frames[i] = -1;
+        recency[i] = 0;
+    }
+
+    printf("\nPage\tFrames\t\tStatus\n"); //table state
+
+    for (i = 0; i < num_pages; i++) {
+        time_counter++;
+        printf("%d\t", page_sequence[i]);
+
+        int page_found = 0;
+        int found_index = -1;
+
+        // Check if hit
+        for (j = 0; j < frame_size; j++) {
+            if (frames[j] == page_sequence[i]) {
+                page_found = 1;
+                hits++;
+                found_index = j;
+                break;
+            }
+        }
+
+        if (page_found == 1) {
+            // If it's a hit, update its recenct to the current time
+            recency[found_index] = time_counter;
+        } else { // Page not found (a miss/page fault)
+            page_faults++;
+            int empty_frame_index = -1;
+
+            for (j = 0; j < frame_size; j++) {
+                if (frames[j] == -1) {
+                    empty_frame_index = j;
+                    break;
+                }
+            }
+
+            if (empty_frame_index != -1) {
+                frames[empty_frame_index] = page_sequence[i];
+                recency[empty_frame_index] = time_counter;
+            } else {
+                int lru_index = 0;
+                for (j = 1; j < frame_size; j++) {
+                    if (recency[j] < recency[lru_index]) {
+                        lru_index = j;
+                    }
+                }
+                frames[lru_index] = page_sequence[i];
+                recency[lru_index] = time_counter;
+            }
+        }
+
+        for (k = 0; k < frame_size; k++) {
+            if (frames[k] == -1) {
+                printf(" - ");
+            } else {
+                printf(" %d ", frames[k]);
+            }
+        }
+
+        // Print hit or miss status
+        if (page_found == 1) {
+            printf("\tHit\n");
+        } else {
+            printf("\tMiss (Fault)\n");
+        }
+    }
+
+    printf("Total Page Faults: %d\n", page_faults);
+    printf("Total Hits: %d\n", hits);
+
+}
+
+int main() {
+    int choice;
+    while (1) {
+        printf("Page Replacement Algorithm Menu\n");
+        printf("1. FIFO Algorithm\n");
+        printf("2. LRU Algorithm\n");
+        printf("3. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                fifo();
+                break;
+            case 2:
+                lru();
+                break;
+            case 3:
+                printf("Exiting\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please enter 1, 2, or 3.\n\n");
+        }
+    }
+    return 0;
+}
