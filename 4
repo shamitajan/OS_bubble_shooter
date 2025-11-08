@@ -1,131 +1,90 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <limits.h>
 
-void sort(int at[], int bt[], int process[], int n) {
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (at[j] > at[j + 1]) {
-                int temp = at[j]; at[j] = at[j + 1]; at[j + 1] = temp;
-                temp = bt[j]; bt[j] = bt[j + 1]; bt[j + 1] = temp;
-                temp = process[j]; process[j] = process[j + 1]; process[j + 1] = temp;
-            }
+int pick_shortest(int n, int at[], int rem[], int t) {
+    int idx = -1, min = INT_MAX;
+    for (int i = 0; i < n; ++i)
+        if (at[i] <= t && rem[i] > 0 && rem[i] < min) {
+            min = rem[i];
+            idx = i;
         }
-    }
+    return idx;
 }
 
-
 void sjf_preemptive(int n, int at[], int bt[]) {
-    int remaining_bt[20], ct[20], st[20], tat[20], wt[20], process[20];
-    int completed = 0, current_time = 0, min_bt, shortest;
-    int start_flag[20] = {0};
-    float awt = 0, atat = 0;
+    int *rem = malloc(n * sizeof(int));
+    int *st = malloc(n * sizeof(int));
+    int *ct = malloc(n * sizeof(int));
+    int *wt = malloc(n * sizeof(int));
+    int *tat = malloc(n * sizeof(int));
+    int *proc = malloc(n * sizeof(int)); // process ids 1..n
 
-    // For Gantt Chart
-    int gantt_proc[100], gantt_time[100], gantt_count = 0;
-    int prev_proc = -1;
+    for (int i = 0; i < n; ++i) { rem[i] = bt[i]; proc[i] = i + 1; st[i] = -1; }
 
-    for (int i = 0; i < n; i++) {
-        process[i] = i + 1;
-        remaining_bt[i] = bt[i];
-    }
+    int completed = 0, t = 0, last = -1;
+    // simple Gantt storage (process id or -1 for IDLE) with time points
+    int gantt_proc[200], gantt_time[200], gc = 0;
 
-    while (completed != n) {
-        shortest = -1;
-        min_bt = INT_MAX;
-
-        // Find process with minimum remaining time among arrived processes
-        for (int i = 0; i < n; i++) {
-            if (at[i] <= current_time && remaining_bt[i] > 0 && remaining_bt[i] < min_bt) {
-                min_bt = remaining_bt[i];
-                shortest = i;
-            }
-        }
-
-        if (shortest == -1) {
-            // CPU is idle
-            if (prev_proc != -2) { // record idle state
-                gantt_proc[gantt_count] = -1; // IDLE
-                gantt_time[gantt_count] = current_time;
-                gantt_count++;
-                prev_proc = -2;
-            }
-            current_time++;
+    while (completed < n) {
+        int cur = pick_shortest(n, at, rem, t);
+        if (cur == -1) { // CPU idle
+            if (last != -2) { gantt_proc[gc] = -1; gantt_time[gc++] = t; last = -2; }
+            ++t;
             continue;
         }
 
-        if (start_flag[shortest] == 0) {
-            st[shortest] = current_time;
-            start_flag[shortest] = 1;
-        }
+        if (st[cur] == -1) st[cur] = t;
+        if (last != proc[cur]) { gantt_proc[gc] = proc[cur]; gantt_time[gc++] = t; last = proc[cur]; }
 
-        
-        if (prev_proc != process[shortest]) {
-            gantt_proc[gantt_count] = process[shortest];
-            gantt_time[gantt_count] = current_time;
-            gantt_count++;
-            prev_proc = process[shortest];
-        }
-
-        remaining_bt[shortest]--;
-        current_time++;
-
-        if (remaining_bt[shortest] == 0) {
+        rem[cur]--; ++t;
+        if (rem[cur] == 0) {
             completed++;
-            ct[shortest] = current_time;
-            tat[shortest] = ct[shortest] - at[shortest];
-            wt[shortest] = tat[shortest] - bt[shortest];
-            awt += wt[shortest];
-            atat += tat[shortest];
+            ct[cur] = t;
+            tat[cur] = ct[cur] - at[cur];
+            wt[cur] = tat[cur] - bt[cur];
         }
     }
 
-    
-    gantt_time[gantt_count] = current_time;
+    gantt_time[gc] = t; // end time
 
+    double awt = 0, atat = 0;
+    printf("\nProcess\tAT\tBT\tST\tCT\tWT\tTAT\n");
+    for (int i = 0; i < n; ++i) {
+        awt += wt[i];
+        atat += tat[i];
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+               proc[i], at[i], bt[i], st[i], ct[i], wt[i], tat[i]);
+    }
     awt /= n; atat /= n;
 
-    printf("\n\n--- Preemptive SJF Scheduling ---\n");
-    printf("\nProcess\tAT\tBT\tST\tCT\tWT\tTAT\n");
-    for (int i = 0; i < n; i++)
-        printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\n", process[i], at[i], bt[i], st[i], ct[i], wt[i], tat[i]);
-
-   
     printf("\nGantt Chart:\n");
-    for (int i = 0; i < gantt_count; i++) {
-        printf("|");
-        if (gantt_proc[i] == -1)
-            printf(" IDLE ");
-        else
-            printf(" P%d ", gantt_proc[i]);
+    for (int i = 0; i < gc; ++i) {
+        printf("| %s%d ", (gantt_proc[i] == -1 ? "IDLE " : "P"), (gantt_proc[i] == -1 ? 0 : gantt_proc[i]));
     }
     printf("|\n");
+    for (int i = 0; i <= gc; ++i) printf("%-5d", gantt_time[i]);
 
-    
-    for (int i = 0; i <= gantt_count; i++) {
-        printf("%-5d", gantt_time[i]);
-    }
+    printf("\n\nAverage Waiting Time: %.2f\nAverage Turnaround Time: %.2f\n", awt, atat);
 
-    printf("\n\nAverage Waiting Time: %.2f", awt);
-    printf("\nAverage Turnaround Time: %.2f\n", atat);
+    free(rem); free(st); free(ct); free(wt); free(tat); free(proc);
 }
 
-int main() {
+int main(void) {
     int n;
-    int at[20], bt[20];
-
     printf("Enter number of processes: ");
-    scanf("%d", &n);
+    if (scanf("%d", &n) != 1 || n <= 0) return 0;
 
-    for (int i = 0; i < n; i++) {
+    int *at = malloc(n * sizeof(int)), *bt = malloc(n * sizeof(int));
+    for (int i = 0; i < n; ++i) {
         printf("Enter Arrival Time for P%d: ", i + 1);
         scanf("%d", &at[i]);
         printf("Enter Burst Time for P%d: ", i + 1);
         scanf("%d", &bt[i]);
     }
 
+    sjf_preemptive(n, at, bt);
 
-printf("Preemptive Shortest Job First (SJF)\n");
-sjf_preemptive(n, at, bt);
-return 0;
+    free(at); free(bt);
+    return 0;
 }
-
